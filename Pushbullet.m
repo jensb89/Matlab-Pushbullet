@@ -24,11 +24,13 @@ classdef Pushbullet < handle
             % Get a list of devices
             output = urlread([self.HOST,self.DEVICES_URL],...
                 'Authentication','Basic',...
-                'Username',apikey,'Get',{});
-            self.Devices = output{1}.devices{1};
+                'Username',self.ApiKey,'Get',{});
+            output_converted = json_parser(output);
+            self.Devices = output_converted{1}.devices;
             for i=1:length(self.Devices)
                 display(self.Devices{i}.nickname)
             end
+        end
             
         
         function output = pushNote(self, device_iden, title, message)
@@ -71,7 +73,7 @@ classdef Pushbullet < handle
             % Perform the POST Request
             output = urlread([self.HOST,self.PUSH_URL],...
                             'Authentication','Basic',...
-                            'Username',apikey,...
+                            'Username',self.ApiKey,...
                             'Post',data);
         end
     
