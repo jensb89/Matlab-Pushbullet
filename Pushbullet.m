@@ -46,6 +46,10 @@ classdef Pushbullet < handle
                 'title', title,...
                 'body', message};
             
+            if isempty(device_iden)
+                data(3:4) = []; %delete device_iden in data -> push to all connected devices
+            end
+            
             output = push(self, data);
         end
  
@@ -65,6 +69,10 @@ classdef Pushbullet < handle
                     'file_name',file_name,...
                     'file_type',file_type,...
                     'file_url',file_url};
+                
+            if isempty(device_iden)
+                data(3:4) = []; %delete device_iden in data -> push to all connected devices
+            end
 
             output = push(self, data);
         end
@@ -76,6 +84,20 @@ classdef Pushbullet < handle
                             'Username',self.ApiKey,...
                             'Post',data);
         end
+        
+        % HELPER FUNCTIONS
+        function get_device_iden_from_nickname(self, nickname)
+            if isempty(self.Devices)
+                load_devices(self)
+            end
+            if ~isempty(self.Devices)
+                for i=1:length(self.Devices)
+                    if strcmp(self.Devices{i}.nickname, nickname)
+                        device_iden = self.Devices{i}.iden;
+                    end
+                end
+            end
+        end       
     
     end
     
