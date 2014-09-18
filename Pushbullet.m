@@ -54,7 +54,7 @@ classdef Pushbullet < handle
         end
  
                       
-        function output = pushPic(self, device_iden, file_name, file_type, file_url)
+        function output = pushFile(self, device_iden, file_name, file_type, file_url)
             % Push a picture
             % https://docs.pushbullet.com/v2/pushes
             % Arguments:
@@ -77,6 +77,26 @@ classdef Pushbullet < handle
             output = push(self, data);
         end
         
+        function output = pushLink(self, device_iden, title, message, url)
+            % Push a link
+            % https://docs.pushbullet.com/v2/pushes
+            % Arguments:
+            % device_iden -- iden of device to push to
+            % title -- a title for the note
+            % body -- the body of the note
+
+            data = {'type', 'note',...
+                'device_iden',device_iden,...
+                'title', title,...
+                'body', message,...
+                'url', url};
+            
+            if isempty(device_iden)
+                data(3:4) = []; %delete device_iden in data -> push to all connected devices
+            end
+            
+            output = push(self, data);
+            
         function output = push(self, data)
             % Perform the POST Request
             output = urlread([self.HOST,self.PUSH_URL],...
