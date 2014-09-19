@@ -1,7 +1,18 @@
 classdef Pushbullet < handle
-    %Pushbullet Connect to pushbullet and send notes/links/files to the
+    %Pushbullet Connect to pushbullet.com and send notes/links/files to the
     %connected smartphone as a push notification
-    %   Detailed explanation goes here
+    %
+    %   Usage:
+    %   p = Pushbullet('abcdefghijk123456') (apikey)
+    %   p.pushNote([],'Matlab Pushbullet Test','This is the message') --
+    %   sends a push note to all connected devices
+    %   p.pushNote('abhgzt12123','Matlab Pushbullet Test','This is the
+    %   message') --send only to the specific device with the device_iden
+    %   p.load_devices()  --show all devices + device_idens
+    %   p.pushFile(device_iden, file_name, file_type, file_url) to push a
+    %   file which has already been uploaded
+    %
+    %   Copyright 2014, Jens Brauer, https://github.com/jensb89
     
     properties
         HOST = 'https://api.pushbullet.com/v2'
@@ -96,6 +107,7 @@ classdef Pushbullet < handle
             end
             
             output = push(self, data);
+        end
             
         function output = push(self, data)
             % Perform the POST Request
@@ -106,7 +118,7 @@ classdef Pushbullet < handle
         end
         
         % HELPER FUNCTIONS
-        function get_device_iden_from_nickname(self, nickname)
+        function device_iden = get_device_iden_from_nickname(self, nickname)
             if isempty(self.Devices)
                 load_devices(self)
             end
