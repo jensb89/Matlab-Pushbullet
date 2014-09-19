@@ -39,8 +39,9 @@ p.pushLink(device_iden, 'Test Link', 'Message to the link', 'http://www.github.c
 ##Pushing a file
 
 ```matlab
-p.pushFile(device_iden, file_name, file_type, file_url) to push a   file which has already been uploaded
+p.pushFile(device_iden, file_name, file_type, file_url) 
 ```
+to push a file which has already been uploaded somewhere.
 
 ##Pushing to specific devices
 
