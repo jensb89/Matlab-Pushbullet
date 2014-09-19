@@ -9,6 +9,8 @@ What you need is a Pushbullet Account and the corresponding App for Android or i
 In order to use the API you need an API key that can be obtained
 [here](https://www.pushbullet.com/account). 
 
+![Matlab Pushbullet Notification on iPhone](matlab-pushbullet-ios.png)
+
 
 #Usage
 
