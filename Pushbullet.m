@@ -39,7 +39,7 @@ classdef Pushbullet < handle
             output_converted = json_parser(output);
             self.Devices = output_converted{1}.devices;
             for i=1:length(self.Devices)
-                display(self.Devices{i}.nickname)
+                sprintf('%s : %s', self.Devices{1}.nickname, self.Devices{1}.iden)
             end
         end
             
