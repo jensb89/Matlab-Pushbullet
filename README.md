@@ -11,6 +11,7 @@ In order to use the API you need an API key that can be obtained
 
 ![Matlab Pushbullet Notification on iPhone](matlab-pushbullet-ios.png)
 
+Important: The Matlab class now uses the new webwrite and webread functions from Matlab. The webwrite was introduced in Matlab R2015a. If you are using an older matlab version, use the older release of Matlab-Pushbullet [here](https://github.com/jensb89/Matlab-Pushbullet/releases/).
 
 #Usage
 
@@ -60,7 +61,3 @@ License
 -------
 
 MIT license. See LICENSE for full text.
-
-Acknowledgement
--------
-[JSON-Parser](http://www.mathworks.com/matlabcentral/fileexchange/20565-json-parser) is used to parse the json output.

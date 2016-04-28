@@ -12,7 +12,7 @@ classdef Pushbullet < handle
     %   p.pushFile(device_iden, file_name, file_type, file_url) to push a
     %   file which has already been uploaded
     %
-    %   Copyright 2014, Jens Brauer, https://github.com/jensb89
+    %   Copyright 2016, Jens Brauer, https://github.com/jensb89
     
     properties
         HOST = 'https://api.pushbullet.com/v2'
@@ -29,17 +29,23 @@ classdef Pushbullet < handle
         
         function self = Pushbullet(apikey)
             self.ApiKey = apikey;
+            if verLessThan('MATLAB','8.5')
+                warning(['You are using a Matlab version prior to 2015a',...
+                        'Matlab-Pushbullet might not work with this version.',...
+                        'Update Matlab or use an older version of Matlab-Pushbullet',...
+                        'from here: https://github.com/jensb89/Matlab-Pushbullet/releases/']);
+            end
         end
         
         function load_devices(self)
             % Get a list of devices
-            output = urlread([self.HOST,self.DEVICES_URL],...
-                'Authentication','Basic',...
-                'Username',self.ApiKey,'Get',{});
-            output_converted = json_parser(output);
-            self.Devices = output_converted{1}.devices;
+            options =  weboptions('KeyName','Access-Token','KeyValue',self.ApiKey);
+            output = webread([self.HOST,self.DEVICES_URL],options);
+            self.Devices = output.devices;
             for i=1:length(self.Devices)
-                sprintf('%s : %s', self.Devices{1}.nickname, self.Devices{1}.iden)
+                if self.Devices{i}.active && isfield(self.Devices{i},'nickname')
+                sprintf('%s : %s', self.Devices{i}.nickname, self.Devices{i}.iden)
+                end
             end
         end
             
@@ -52,13 +58,13 @@ classdef Pushbullet < handle
             % title -- a title for the note
             % body -- the body of the note
 
-            data = {'type', 'note',...
-                'device_iden',device_iden,...
-                'title', title,...
-                'body', message};
+            data = struct('body',message,...
+                          'device_iden',device_iden,...
+                          'title',title,...
+                          'type','note');
             
             if isempty(device_iden)
-                data(3:4) = []; %delete device_iden in data -> push to all connected devices
+                data = rmfield(data,'device_iden');
             end
             
             output = push(self, data);
@@ -75,14 +81,14 @@ classdef Pushbullet < handle
             % 'image/png')
             % file_url -- the url of the file
 
-            data = {'type','file',...
+            data = struct('type','file',...
                     'device_iden',device_iden,...
                     'file_name',file_name,...
                     'file_type',file_type,...
-                    'file_url',file_url};
+                    'file_url',file_url);
                 
             if isempty(device_iden)
-                data(3:4) = []; %delete device_iden in data -> push to all connected devices
+                data = rmfield(data,'device_iden'); %delete device_iden in data -> push to all connected devices
             end
 
             output = push(self, data);
@@ -96,14 +102,14 @@ classdef Pushbullet < handle
             % title -- a title for the note
             % body -- the body of the note
 
-            data = {'type', 'note',...
+            data = struct('type', 'note',...
                 'device_iden',device_iden,...
                 'title', title,...
                 'body', message,...
-                'url', url};
+                'url', url);
             
             if isempty(device_iden)
-                data(3:4) = []; %delete device_iden in data -> push to all connected devices
+                data = rmfield(data,'device_iden'); %delete device_iden in data -> push to all connected devices
             end
             
             output = push(self, data);
@@ -111,10 +117,10 @@ classdef Pushbullet < handle
             
         function output = push(self, data)
             % Perform the POST Request
-            output = urlread([self.HOST,self.PUSH_URL],...
-                            'Authentication','Basic',...
-                            'Username',self.ApiKey,...
-                            'Post',data);
+            options = weboptions('KeyName','Access-Token',...
+                                'KeyValue',self.ApiKey,...
+                                'MediaType','application/json');
+            output = webwrite([self.HOST,self.PUSH_URL],data,options)
         end
         
         % HELPER FUNCTIONS
