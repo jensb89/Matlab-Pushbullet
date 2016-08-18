@@ -21,8 +21,10 @@ classdef Pushbullet < handle
         ME_URL = '/users/me'
         PUSH_URL = '/pushes'
         UPLOAD_REQUEST_URL = '/upload-request'
+        SUBSCRIPTIONS_URL = '/subscriptions'
         ApiKey
         Devices
+        Subscriptions
     end
     
     methods
@@ -48,7 +50,19 @@ classdef Pushbullet < handle
                 end
             end
         end
-            
+        
+        function load_subscriptions(self)
+            % Get a list of devices
+            options =  weboptions('KeyName','Access-Token','KeyValue',self.ApiKey);
+            output = webread([self.HOST,self.SUBSCRIPTIONS_URL],options);
+            self.Subscriptions = output.subscriptions;
+            for i=1:length(self.Subscriptions)
+                if self.Subscriptions{i}.active && isfield(self.Subscriptions{i}.channel,'name')
+                sprintf('%s : %s : %s', self.Subscriptions{i}.channel.name, self.Subscriptions{i}.channel.iden, self.Subscriptions{i}.channel.tag)
+                end
+            end
+        end      
+        
         
         function output = pushNote(self, device_iden, title, message)
             % Push a note
@@ -65,6 +79,26 @@ classdef Pushbullet < handle
             
             if isempty(device_iden)
                 data = rmfield(data,'device_iden');
+            end
+            
+            output = push(self, data);
+        end
+        
+     function output = pushNote_to_Channel(self, channel_tag, title, message)
+            % Push a note
+            % https://docs.pushbullet.com/v2/pushes
+            % Arguments:
+            % channel_tag -- tag of channel to push to
+            % title -- a title for the note
+            % body -- the body of the note
+
+            data = struct('body',message,...
+                          'channel_tag',channel_tag,...
+                          'title',title,...
+                          'type','note');
+            
+            if isempty(channel_tag)
+                data = rmfield(data,'channel_tag');
             end
             
             output = push(self, data);
@@ -120,7 +154,7 @@ classdef Pushbullet < handle
             options = weboptions('KeyName','Access-Token',...
                                 'KeyValue',self.ApiKey,...
                                 'MediaType','application/json');
-            output = webwrite([self.HOST,self.PUSH_URL],data,options)
+            output = webwrite([self.HOST,self.PUSH_URL],data,options);
         end
         
         % HELPER FUNCTIONS
